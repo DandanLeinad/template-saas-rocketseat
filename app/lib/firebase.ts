@@ -1,18 +1,29 @@
-import { cert, initializeApp } from "firebase-admin/app";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 // import { getStorage } from "firebase-admin/storage";
 import "server-only";
 
+// if (!process.env.FIREBASE_PRIVATE_KEY_BASE64) {
+//   throw new Error("FIREBASE_PRIVATE_KEY_BASE64 is not defined in the environment variables.");
+// }
+
+const decodedkey = Buffer.from(
+  process.env.FIREBASE_PRIVATE_KEY_BASE64!,
+  "base64"
+).toString("utf-8");
+
 const firebaseCert = cert({
-  projectId: "your-project-id",
-  clientEmail: "your-client-email",
-  privateKey: "your-private-key",
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  privateKey: decodedkey,
 });
 
-export const adminApp = initializeApp({
-  credential: firebaseCert,
-  // storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-});
+if (!getApps().length) {
+  initializeApp({
+    credential: firebaseCert,
+    // storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  });
+}
 
 export const db = getFirestore();
 // export const storage = getStorage().bucket();
