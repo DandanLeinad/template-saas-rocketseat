@@ -50,5 +50,26 @@ export function useStripe() {
     }
   }
 
-  return { createPaymentStripeCheckout, createSubscriptionStripeCheckout };
+  async function handleCreateStripePortal() {
+    if (!stripe) return;
+
+    try {
+      const response = await fetch("/api/stripe/create-portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      window.location.href = data.url;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return {
+    createPaymentStripeCheckout,
+    createSubscriptionStripeCheckout,
+    handleCreateStripePortal,
+  };
 }
