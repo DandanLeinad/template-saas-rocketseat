@@ -32,5 +32,5 @@ export function useStripe() {
     }
   }
 
-  return { stripe };
+  return { createPaymentStripeCheckout };
 }
