@@ -32,5 +32,23 @@ export function useStripe() {
     }
   }
 
-  return { createPaymentStripeCheckout };
+  async function createSubscriptionStripeCheckout(checkoutData: any) {
+    if (!stripe) return;
+
+    try {
+      const response = await fetch("/api/stripe/create-subscription-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(checkoutData),
+      });
+
+      const data = await response.json();
+
+      await stripe.redirectToCheckout({ sessionId: data.id });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return { createPaymentStripeCheckout, createSubscriptionStripeCheckout };
 }
