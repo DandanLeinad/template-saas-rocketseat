@@ -12,20 +12,16 @@ export async function POST(req: NextRequest) {
 
   const metadata = {
     testeId,
+    price,
   };
 
   try {
     const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price, quantity: 1 }],
       mode: "payment",
       payment_method_types: ["card", "boleto"],
       success_url: `${req.headers.get("origin")}/success`,
-      cancel_url: `${req.headers.get("origin")}/cancel`,
+      cancel_url: `${req.headers.get("origin")}/`,
       ...(userEmail && { customer_email: userEmail }),
       metadata,
     });
@@ -39,9 +35,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ sessionId: session.id }, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    console.error(error);
+    return NextResponse.error();
   }
 }

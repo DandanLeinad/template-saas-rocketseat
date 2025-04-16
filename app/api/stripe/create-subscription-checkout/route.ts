@@ -1,7 +1,6 @@
 import { auth } from "@/app/lib/auth";
 import stripe from "@/app/lib/stripe";
-import { getOrCreateCustomer } from "@/app/server/stripe/get-customer-id";
-import { get } from "http";
+import { getOrCreateCustomer } from "@/app/server/stripe/get-or-create-customer";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -23,9 +22,13 @@ export async function POST(req: NextRequest) {
 
   const customerId = await getOrCreateCustomer(userId, userEmail);
 
-  const metadata = { testeId, price, userId };
+  const metadata = {
+    testeId,
+    price,
+    userId,
+  };
 
-  // Precisamos criar um cliente na Stripe para ter referência dele quando for criar o portal
+  // Precisamos criar um cliente NA STRIPE para ter referência dele quando for criar o portal
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -45,12 +48,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ sessionId: session.id }, { status: 200 });
+    return NextResponse.json({ id: session.id }, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.error();
   }
 }

@@ -1,5 +1,5 @@
-import { db } from "@/app/lib/firebase";
 import "server-only";
+import { db } from "@/app/lib/firebase";
 
 import Stripe from "stripe";
 
@@ -8,14 +8,15 @@ export async function handleStripeSubscription(
 ) {
   if (event.data.object.payment_status === "paid") {
     console.log(
-      "Assinatura aprovada. Enviar um email e liberar o acesso ao cliente"
+      "Pagamento realizado com sucesso. Enviar um email liberar acesso."
     );
+
     const metadata = event.data.object.metadata;
 
     const userId = metadata?.userId;
 
     if (!userId) {
-      console.error("User ID not found in metadata");
+      console.error("User ID not found");
       return;
     }
 

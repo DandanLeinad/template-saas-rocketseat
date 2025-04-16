@@ -1,6 +1,6 @@
+import "server-only";
 import { db } from "@/app/lib/firebase";
 import stripe from "@/app/lib/stripe";
-import "server-only";
 
 export async function getOrCreateCustomer(userId: string, userEmail: string) {
   try {
@@ -21,7 +21,7 @@ export async function getOrCreateCustomer(userId: string, userEmail: string) {
 
     const stripeCustomer = await stripe.customers.create({
       email: userEmail,
-      ...(!userName && { name: userName }),
+      ...(userName && { name: userName }),
       metadata: {
         userId,
       },
@@ -33,7 +33,7 @@ export async function getOrCreateCustomer(userId: string, userEmail: string) {
 
     return stripeCustomer.id;
   } catch (error) {
-    console.error("Error getting or creating customer:", error);
+    console.error(error);
     throw new Error("Failed to get or create customer");
   }
 }

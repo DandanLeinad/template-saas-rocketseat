@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
+import { useEffect, useState } from "react";
 
 export function useStripe() {
   const [stripe, setStripe] = useState<Stripe | null>(null);
@@ -11,6 +11,7 @@ export function useStripe() {
       );
       setStripe(stripeInstance);
     }
+
     loadStripeAsync();
   }, []);
 
@@ -20,7 +21,9 @@ export function useStripe() {
     try {
       const response = await fetch("/api/stripe/create-pay-checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(checkoutData),
       });
 
@@ -38,33 +41,31 @@ export function useStripe() {
     try {
       const response = await fetch("/api/stripe/create-subscription-checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(checkoutData),
       });
 
       const data = await response.json();
 
-      await stripe.redirectToCheckout({ sessionId: data.sessionId });
+      await stripe.redirectToCheckout({ sessionId: data.id });
     } catch (error) {
       console.error(error);
     }
   }
 
   async function handleCreateStripePortal() {
-    if (!stripe) return;
+    const response = await fetch("/api/stripe/create-portal", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-    try {
-      const response = await fetch("/api/stripe/create-portal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+    const data = await response.json();
 
-      const data = await response.json();
-
-      window.location.href = data.url;
-    } catch (error) {
-      console.error(error);
-    }
+    window.location.href = data.url;
   }
 
   return {

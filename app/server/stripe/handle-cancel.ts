@@ -1,14 +1,13 @@
-import { db } from "@/app/lib/firebase";
 import "server-only";
+import { db } from "@/app/lib/firebase";
 
 import Stripe from "stripe";
 
 export async function handleStripeCancelSubscription(
   event: Stripe.CustomerSubscriptionDeletedEvent
 ) {
-  console.log(
-    "Cancelou a assinatura. Enviar um email para o cliente informando que a assinatura foi cancelada"
-  );
+  console.log("Cancelou a assinatura");
+
   const customerId = event.data.object.customer;
 
   const userRef = await db
@@ -16,8 +15,8 @@ export async function handleStripeCancelSubscription(
     .where("stripeCustomerId", "==", customerId)
     .get();
 
-  if (userRef.empty) {
-    console.error("User not found for customer ID:", customerId);
+  if (!userRef) {
+    console.error("User not found");
     return;
   }
 
