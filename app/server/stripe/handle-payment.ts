@@ -9,7 +9,5 @@ export async function handleStripePayment(
     console.log(
       "Pagamento aprovado. Enviar um email e liberar o acesso ao cliente"
     );
-  } else {
-    console.log("Pagamento não aprovado");
   }
 }
