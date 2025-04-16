@@ -1,4 +1,5 @@
 import stripe from "@/app/lib/stripe";
+import { console } from "inspector";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,25 +20,41 @@ export async function POST(req: NextRequest) {
   const event = stripe.webhooks.constructEvent(body, signature, secret);
 
   switch (event.type) {
-    case "checkout.session.completed": // Pagamento aprovado se status = paid
-      break;
+    case "checkout.session.completed": // Pagamento aprovado se status = paid - Pode ser tanto pagamento único quanto assinatura
+      const metadata = event.data.object.metadata;
 
+      if (metadata?.price === process.env.STRIPE_PRODUCT_PRICE_ID) {
+        await handleStripePayment(event);
+      }
+
+      if (metadata?.price === process.env.STRIPE_SUBSCRIPTION_PRICE_ID) {
+        await handleStripeSubscription(event);
+      }
+
+      break;
     case "checkout.session.expired": // Expirou o tempo de pagamento
+      console.log(
+        "Enviar um email para o o cliente informando que o pagamento expirou"
+      );
       break;
     case "checkout.session.async_payment_succeeded": // Boleto pago
+      console.log(
+        "Enviar um email para o o cliente informando que o pagamento foi confirmado"
+      );
       break;
-
     case "checkout.session.async_payment_failed": // Boleto falhou
+      console.log(
+        "Enviar um email para o o cliente informando que o pagamento falhou"
+      );
       break;
-
     case "customer.subscription.created": // Assinatura criada
-      // Subscription created
+      console.log("Mensagem de boas-vindas para o cliente porque ele assinou");
       break;
-    case "customer.subscription.updated": // Assinatura atualizada
-      // Subscription atualizada
-      break;
+    // case "customer.subscription.updated": // Assinatura atualizada
+    //   console.log("Assinatura atualizada para o cliente");
+    //   break;
     case "customer.subscription.deleted": // Assinatura deletada
-      // Subscription deletada
+      await handleStripeCancelSubscription(event);
       break;
   }
 }
