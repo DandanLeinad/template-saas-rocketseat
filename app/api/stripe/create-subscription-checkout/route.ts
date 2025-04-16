@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   const customerId = await getOrCreateCustomer(userId, userEmail);
 
-  const metadata = { testeId, price };
+  const metadata = { testeId, price, userId };
 
   // Precisamos criar um cliente na Stripe para ter referência dele quando for criar o portal
 
