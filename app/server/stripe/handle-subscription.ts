@@ -7,7 +7,7 @@ export async function handleStripeSubscription(
 ) {
   if (event.data.object.payment_status === "paid") {
     console.log(
-      "Pagamento aprovado. Enviar um email e liberar o acesso ao cliente"
+      "Assinatura aprovada. Enviar um email e liberar o acesso ao cliente"
     );
   }
 }
