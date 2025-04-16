@@ -1,4 +1,6 @@
+import { auth } from "@/app/lib/auth";
 import stripe from "@/app/lib/stripe";
+import { get } from "http";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -10,7 +12,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Price not found" }, { status: 500 });
   }
 
+  const session = await auth();
+  const userId = session?.user?.id;
+  const userEmail = session?.user?.email;
+
+  if (!userId || !userEmail) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const customerId = await getOrCreateCustomer(userId, userEmail);
+
   const metadata = { testeId };
+
+  // Precisamos criar um cliente na Stripe para ter referência dele quando for criar o portal
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -20,7 +34,7 @@ export async function POST(req: NextRequest) {
       success_url: `${req.headers.get("origin")}/success`,
       cancel_url: `${req.headers.get("origin")}/`,
       metadata,
-      // customer
+      customer: customerId,
     });
 
     if (!session.url) {
