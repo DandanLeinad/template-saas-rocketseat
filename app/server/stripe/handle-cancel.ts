@@ -9,14 +9,19 @@ export async function handleStripeCancelSubscription(
   console.log(
     "Cancelou a assinatura. Enviar um email para o cliente informando que a assinatura foi cancelada"
   );
-  const metadata = event.data.object.metadata;
+  const customerId = event.data.object.customer;
 
-  const userId = metadata?.userId;
+  const userRef = await db
+    .collection("users")
+    .where("stripeCustomerId", "==", customerId)
+    .get();
 
-  if (!userId) {
-    console.error("User ID not found in metadata");
+  if (userRef.empty) {
+    console.error("User not found for customer ID:", customerId);
     return;
   }
+
+  const userId = userRef.docs[0].id;
 
   await db.collection("users").doc(userId).update({
     subscriptionStatus: "inactive",
