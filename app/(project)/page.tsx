@@ -1,13 +1,17 @@
+import { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Template SaaS Rocketseat",
+  description: "Landing page",
+};
 
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="text-4xl font-bold">Landing Page</h1>
       <Link href="/login">
-        <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
-          Go to Login
-        </button>
+        <button>Login</button>
       </Link>
     </div>
   );

@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
         external_reference: testeId, // ID do pedido - Isso impacta na pontuação do Mercado Pago
         metadata: {
           testeId, // Essa variável é contida para snake_case -> teste_id
+          userEmail,
         },
         ...(userEmail && { payer: { email: userEmail } }), // Também impacta na pontuação do Mercado Pago
         items: [
@@ -47,9 +48,9 @@ export async function POST(req: NextRequest) {
         },
         auto_return: "approved",
         back_urls: {
-          success: `${process.env.NEXT_PUBLIC_BASE_URL}/api/mercado-pago/pending`,
-          failure: `${process.env.NEXT_PUBLIC_BASE_URL}/api/mercado-pago/pending`,
-          pending: `${process.env.NEXT_PUBLIC_BASE_URL}/api/mercado-pago/pending`,
+          success: `${req.headers.get("origin")}/api/mercado-pago/pending`,
+          failure: `${req.headers.get("origin")}/api/mercado-pago/pending`,
+          pending: `${req.headers.get("origin")}/api/mercado-pago/pending`,
         },
       },
     });
